@@ -1,5 +1,4 @@
-import { initializeApp } from "firebase/app";
-import { initializeAppCheck, ReCaptchaEnterpriseProvider } from "firebase/app-check";
+import { initializeApp } from "../node_modules/firebase/app";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDUDwzboY_C2K6hmcMP0dQm8UJ8WzR5Qys",
@@ -11,26 +10,6 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-
-let config = {
-    type: Phaser.AUTO,
-    width: 800,
-    height: 600,
-    physics: {
-        default: 'arcade',
-        arcade: {
-            gravity: { y: 300 },
-            debug: false
-        }
-    },
-    scene: {
-        preload: preload,
-        create: create,
-        update: update
-    }
-};
-
-let game = new Phaser.Game(config);
 
 class piece {
     constructor(label, color) {
@@ -72,11 +51,29 @@ class piece {
         if (dir == "cw") {
             for (let i = 0; i<this.shape.length; i++) {
                 for (let j = 0; j < this.shape[i].length; j++) {
-                    const element = this.shape[i][j];
-                    
+                    newPiece[j][i] = this.shape[i][j];
+                    relX = i - this.center[0];
+                    relY = j - this.center[1];
+
+                    newX = this.center[0] - relY;
+                    newY = this.center[1] - relX;
+                }
+            }
+        } else {
+            for (let i = this.shape.length; i<1; i--) {
+                for (let j = 0; j < this.shape[i].length; j++) {
+                    newPiece[j][i] = this.shape[i][j];
+                    relX = i - this.center[0];
+                    relY = j - this.center[1];
+
+                    newX = this.center[0] + relY;
+                    newY = this.center[1] + relX;
                 }
             }
         }
+        this.shape = newPiece;
+        this.center = [newX, newY];
+        return this;
     }
 
     setPos(x, y) {
@@ -145,15 +142,7 @@ class board {
     }
 }
 
-function preload ()
-{
-}
-
-function create ()
-{
-
-}
-
-function update ()
-{
-}
+let t = new piece('T', 'red');
+console.log(t.shape);
+t2 =  t.rotatePiece('cw');
+console.log(t2.shape);

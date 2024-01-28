@@ -22,6 +22,7 @@
     }
   ],
   "hosting": {
+    "site": "tetris-rushi",
     "public": "public",
     "ignore": [
       "firebase.json",
