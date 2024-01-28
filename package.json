@@ -9,6 +9,7 @@
   "scripts": {
     "build": "webpack"
   },
+  "main": "index.js",
   "name": "tetris",
   "description": "Tetris game",
   "version": "1.0.0",
