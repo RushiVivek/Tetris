@@ -141,8 +141,3 @@ class board {
         }
     }
 }
-
-let t = new piece('T', 'red');
-document.innerHTML = t.shape;
-t2 =  t.rotatePiece('cw');
-document.innerHTML = t2.shape;

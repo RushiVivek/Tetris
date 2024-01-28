@@ -1,5 +1,25 @@
 {
   "dependencies": {
     "firebase": "^10.7.2"
-  }
+  },
+  "devDependencies": {
+    "webpack": "^5.90.0",
+    "webpack-cli": "^5.1.4"
+  },
+  "scripts": {
+    "build": "webpack"
+  },
+  "name": "tetris",
+  "description": "Tetris game",
+  "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RushiVivek/Tetris.git"
+  },
+  "author": "Amaram Rushi Vivek",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/RushiVivek/Tetris/issues"
+  },
+  "homepage": "https://github.com/RushiVivek/Tetris#readme"
 }
