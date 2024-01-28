@@ -1,4 +1,4 @@
-import { initializeApp } from "../node_modules/firebase/app";
+import { initializeApp } from "firebase/app";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDUDwzboY_C2K6hmcMP0dQm8UJ8WzR5Qys",
@@ -143,6 +143,6 @@ class board {
 }
 
 let t = new piece('T', 'red');
-console.log(t.shape);
+document.innerHTML = t.shape;
 t2 =  t.rotatePiece('cw');
-console.log(t2.shape);
+document.innerHTML = t2.shape;
