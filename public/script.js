@@ -46,7 +46,8 @@ class piece {
     }
 
     rotatePiece(dir) {
-        let newPiece = [];
+        let newPiece = Array.from({length: this.shape[0].length}, () => Array(this.shape.length).fill(0));
+        let relX, relY, newX, newY;
 
         if (dir == "cw") {
             for (let i = 0; i<this.shape[0].length; i++) {
@@ -60,7 +61,7 @@ class piece {
                 }
             }
         } else {
-            for (let i = this.shape[0].length; i<1; i--) {
+            for (let i = this.shape[0].length; i>=0; i--) {
                 for (let j = 0; j < this.shape.length; j++) {
                     newPiece[i][j] = this.shape[j][i];
                     relX = this.x - this.center[0];
@@ -142,3 +143,11 @@ class board {
         }
     }
 }
+
+
+// git add .
+// git commit -m "message"
+// git push -u origin main
+
+// npm run build
+// firebase deploy --only hosting:tetris-rushi
