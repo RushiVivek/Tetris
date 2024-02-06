@@ -309,7 +309,6 @@ let lastFrame, prevFrame;
 function gameLoop() {
     // perform some animation task here
     frame++;
-    console.log(frame);
     if (!p) {
         p = newPiece();
         console.log(p);
@@ -327,6 +326,7 @@ function gameLoop() {
             } else if (frame - lastFrame >= fps / 2) {
                 b.addPiece(p);
                 b.updateScore();
+                frame = 0;
                 p = null;
                 lastFrame = null;
                 lockdelay = false;
@@ -350,6 +350,7 @@ function gameLoop() {
             displayBoard(b.board, game);
         }
         b.updateScore();
+        frame = 0;
         harddrop = false;
         p = null;
     }
