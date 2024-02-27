@@ -36,16 +36,16 @@ class Piece {
         }
     }
 
-    rotatePiece(dir, board, opp=false) {
-        let newPiece = Array(this.shape[0].length).fill().map(() => new Array(this.shape.length).fill(0));
+    rotate(dir) {
+        let newshape = Array(this.shape[0].length).fill().map(() => new Array(this.shape.length).fill(0));
         const oldCenter = this.getCenter();
         const oc = this.center;
         let x, y;
 
-        if (dir == "cw" ? !opp : opp) {
+        if (dir == "cw") {
             for (let i = 0; i<this.shape[0].length; i++) {
                 for (let j = 0; j < this.shape.length; j++) {
-                    newPiece[i][j] = this.shape[this.shape.length - 1 - j][i];
+                    newshape[i][j] = this.shape[this.shape.length - 1 - j][i];
                 }
             }
                     
@@ -59,7 +59,7 @@ class Piece {
         } else {
             for (let i = this.shape[0].length - 1; i>=0; i--) {
                 for (let j = 0; j < this.shape.length; j++) {
-                    newPiece[i][j] = this.shape[j][this.shape[0].length - 1 - i];
+                    newshape[i][j] = this.shape[j][this.shape[0].length - 1 - i];
 
                 }
             }
@@ -74,19 +74,12 @@ class Piece {
         }
         
         const newpiece = new Piece(this.label, this.color);
-        newpiece.shape = newPiece;
+        newpiece.shape = newshape;
         newpiece.center = this.center;
         newpiece.setPos(x, y);
+        this.center = oc;
         
-        if (board.checkOverLap(newpiece)) {
-            this.center = oc;
-            return false;
-        }
-        
-        this.x = x;
-        this.y = y;
-        this.shape = newPiece;
-        return true;
+        return newpiece;
     }
 
     setPos(x, y) {
@@ -155,41 +148,32 @@ class Board {
     }
 
     rotatePiece(piece, dir) {
-        const n = this;
-        const oldp = piece;
-        n.removePiece(piece);
-        if (piece.rotatePiece(dir, n)) {
-            this.removePiece(oldp);
+        this.removePiece(piece);
+        let newpiece = piece.rotate(dir);
+        if (this.checkOverLap(newpiece)) {
             this.addPiece(piece);
+            return piece;
+        } else {
+            this.addPiece(newpiece);
+            return newpiece;
         }
-        // this.removePiece(piece);
-        // piece.rotatePiece(dir, this);
-        // this.addPiece(piece);
+
     }
 
-    checkOverLap(piece, pos=null) {
-        const newBoard = this;
-        newBoard.removePiece(piece);
+    checkOverLap(piece, pos=null, rem=true) {
+        if (!rem) {
+            this.removePiece(piece);
+        }
         if (!pos) {
             pos = [piece.x, piece.y];
         }
         for (let i = 0; i<piece.shape.length; i++) {
             for (let j = 0; j<piece.shape[i].length; j++) {
-                if ((piece.shape[i][j] == 1) && (newBoard.board[pos[1] + i][pos[0] + j][0] == 1)) {
+                if (pos[1] + i >= 24 || pos[0] + j < 0 || pos[0] + j >= 12) {
                     return true;
                 }
-            }
-        }
-        return false;
-    }
-
-    checkOutOfBounds(piece) {
-        for (let i = 0; i<piece.shape.length; i++) {
-            for (let j = 0; j<piece.shape[i].length; j++) {
-                if (piece.shape[i][j] == 1) {
-                    if (this.board[piece.y + i][piece.x + j][0] == 1) {
-                        return true;
-                    }
+                if ((piece.shape[i][j] == 1) && (this.board[pos[1] + i][pos[0] + j][0] == 1)) {
+                    return true;
                 }
             }
         }
@@ -245,6 +229,7 @@ class Board {
             default:
                 break;
         }
+        this.score += addscore;
     }
 }
 
@@ -294,16 +279,10 @@ game.width = 396;
 game.height = 693;
 const fps = 60;
 let gameover = false;
-let softdrop = false;
-let harddrop = false;
-let sonicdrop = false;
-let left = false;
-let right = false;
-let rotate = false;
-let lockdelay = false;
+let softdrop = false, harddrop = false, sonicdrop = false;
 let p;
 let frame = 0;
-let lastFrame, prevFrame;
+let lastFrame, prevFrame, rotate, rotation;
 
 
 function gameLoop() {
@@ -313,23 +292,23 @@ function gameLoop() {
         p = newPiece();
         console.log(p);
         b.addPiece(p);
-    } else if (b.checkOverLap(p, [p.x, p.y + 1])) {
+    } else if (b.checkOverLap(p, [p.x, p.y + 1], false)) {
         if (p.y == 0) {
             gameover = true;
         }else {
             console.log("overlap");
             prevFrame = null;
             softdrop = false;
-            if (!lockdelay) {
+            if (!lastFrame) {
                 lastFrame = frame;
-                lockdelay = true;
             } else if (frame - lastFrame >= fps / 2) {
                 b.addPiece(p);
                 b.updateScore();
-                frame = 0;
                 p = null;
                 lastFrame = null;
-                lockdelay = false;
+            } else if (rotation) {
+                lastFrame = null;
+                rotation = false;
             }
         }
     } else {
@@ -350,7 +329,6 @@ function gameLoop() {
             displayBoard(b.board, game);
         }
         b.updateScore();
-        frame = 0;
         harddrop = false;
         p = null;
     }
@@ -359,6 +337,14 @@ function gameLoop() {
             displayBoard(b.board, game);
         }
         sonicdrop = false;
+    }
+    if (rotate) {
+        let oldp = p;
+        p = b.rotatePiece(p, rotate);
+        if (oldp != p) {
+            rotation = true;
+        }
+        rotate = false;
     }
     if (gameover) {
         console.log("gameover");
@@ -378,6 +364,8 @@ function gameLoop() {
     }
     (p) ? b.addPiece(p): () => {};
     displayBoard(b.board, game);
+
+    document.getElementById("score").innerHTML = b.score.toString();
 
     setTimeout(() => {
       requestAnimationFrame(gameLoop);
@@ -406,14 +394,12 @@ document.addEventListener('keydown', event => {
             
             case "d":
                 console.log("cw");
-                p ? b.rotatePiece(p, "cw") : () => {};
-                lockdelay ? lockdelay = false : () => {};
+                p ? rotate = "cw" : () => {};
                 break;
             
             case "a":
                 console.log("acw");
-                p ? b.rotatePiece(p, "acw") : () => {};
-                lockdelay ? lockdelay = false : () => {};
+                rotate = "acw";
                 break;
             
             case " ":
